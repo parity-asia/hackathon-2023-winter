@@ -1,0 +1,20 @@
+# /etc/systemd/system/energy_trading_api.service
+
+[Unit]
+Description=energy_trading_api Server
+After=network.target
+
+[Service]
+PIDFile=/run/energy_trading_api.pid
+User=root
+Group=www-data
+WorkingDirectory=/opt/energy_trading_api
+ExecStart=/opt/energy_trading_api/energy_trading_api runserver -f /opt/energy_trading_api/config.yml
+ExecReload=/bin/kill -s HUP $MAINPID
+ExecStop=/bin/kill -s TERM $MAINPID
+
+# 'on-failure' or 'always'
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

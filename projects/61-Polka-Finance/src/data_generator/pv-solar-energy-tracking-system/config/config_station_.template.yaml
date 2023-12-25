@@ -1,0 +1,3 @@
+plug_seed: <Seed for account which is configured in Digital Twin and plug device use to send datalogs for Robonomics parachain>
+sending_timeout: <Interval how often plug device send data to datalog>
+service_address: <Address of service account in Robonomics Network. This account gather data from all datalogs created are used by devices which are configured in Digital Twin>

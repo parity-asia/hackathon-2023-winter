@@ -1,0 +1,32 @@
+:root {
+  --color-brand: 31 173 113;
+  --bg-0: 18 18 18;
+  --bg-100: 32 32 32;
+  --bg-200: 53 53 53;
+  --bg-300: 75 75 75;
+  --toastify-color-dark: rgb(var(--bg-200));
+  --toastify-color-progress-dark: rgb(var(--color-brand));
+
+  --text-primary: rgb(255 255 255 / 0.87);
+  --text-secondary: rgb(255 255 255 / 0.6);
+  --text-disabled: rgb(255 255 255 / 0.38);
+}
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  background-color: red;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}

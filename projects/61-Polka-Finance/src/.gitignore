@@ -1,0 +1,10 @@
+Cargo.lock
+target/
+
+# IDE
+.idea/
+.vscode/
+.DS_Store
+
+# Folder which is used for internal logic and data storing
+data/

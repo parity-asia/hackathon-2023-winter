@@ -1,0 +1,9 @@
+overwrite: true
+schema: 'http://108.136.47.177:3000/'
+documents: './src/**/*.{graphql,gql}'
+generates:
+  src/services/indexing/graphql.ts:
+    plugins:
+      - 'typescript'
+      - 'typescript-operations'
+      - 'typescript-document-nodes'

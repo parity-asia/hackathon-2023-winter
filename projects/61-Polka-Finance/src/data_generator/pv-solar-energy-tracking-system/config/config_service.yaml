@@ -1,0 +1,11 @@
+robonomics:
+  seed: tray toast boost hospital blur butter vast glide upset crunch dial video
+  twin_id: 0
+westmint:
+  seed: tray toast boost hospital blur butter vast glide upset crunch dial video
+  endpoint: wss://westmint-rpc.polkadot.io
+  token_id: 482
+  collection_id: 482
+
+service:
+  interval: 60

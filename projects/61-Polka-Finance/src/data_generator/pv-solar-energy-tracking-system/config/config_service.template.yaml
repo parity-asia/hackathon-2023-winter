@@ -1,0 +1,11 @@
+robonomics:
+  seed: <Seed for account in Robonomics parachain which is the owner of digital twin. It is used for data gathering>
+  twin_id: <ID of Digital Twin created by service account address (seed in this file)>
+westmint:
+  seed: <Seed for Westmint account. This account is the owner of NFT collection and only this account could mint NFT for other users (power producer accounts as a reward for generated energy)>
+  endpoint: <Parachain for Assets/NFTs management (e.g. Statemine, Statemint, Westmint)>
+  token_id: <ID of token which is used to pay for generated energy>
+  collection_id: <NFT collection which represents items for auction>
+
+service:
+  interval: <Interval how ofter service part chech data in datalog for further processing>
