@@ -4,17 +4,16 @@
         "price_feed_address": "0x537879A0beA294c1ce04161Ae827919e92C23e92"
     },    
     "CELO":{
-        "rpc": "https://ethereum.publicnode.com",
-        "price_feed_address": "0x9ae96129ed8FE0C707D6eeBa7b90bB1e139e543e",
-        "price_feed_address2": "0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419"
+        "rpc": "https://1rpc.io/celo",
+        "price_feed_address": "0x0568fD19986748cEfF3301e55c0eb1E729E0Ab7e"
     },    
     "tBNB":{
-        "rpc": "https://rpc.api.moonbase.moonbeam.network",
-        "price_feed_address": "0x4ADfBA6138A5bdA31f980EF5D59Fc7f8440A5D92"
+        "rpc": "https://rpc.api.moonbeam.network",
+        "price_feed_address": "0x0147f2Ad7F1e2Bc51F998CC128a8355d5AE8C32D"
     },    
     "GoerliETH":{
-        "rpc": "https://rpc.api.moonbase.moonbeam.network",
-        "price_feed_address": "0x0BAA6E884cfD628b33867F9E081B44a76276fA2D"
+        "rpc": "https://rpc.api.moonbeam.network",
+        "price_feed_address": "0x9ce2388a1696e22F870341C3FC1E89710C7569B5"
     }
     
 }

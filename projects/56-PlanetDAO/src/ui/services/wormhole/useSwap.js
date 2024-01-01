@@ -1,6 +1,6 @@
-import {useState, useEffect} from "react";
-import {BigNumber, ethers} from "ethers";
-import {getEmitterAddressEth, parseSequenceFromLogEth, attestFromEth, tryNativeToHexString, getIsTransferCompletedEth} from "@certusone/wormhole-sdk";
+import { useState, useEffect } from "react";
+import { BigNumber, ethers } from "ethers";
+import { getEmitterAddressEth, parseSequenceFromLogEth, attestFromEth, tryNativeToHexString, getIsTransferCompletedEth } from "@certusone/wormhole-sdk";
 import config from "./json/config.json";
 import TokenBridgeApi from "./json/TokenBridgeABI.json";
 export async function sendTransfer(chainid, amount, Recipient, ShowAlert) {
@@ -14,7 +14,7 @@ export async function sendTransfer(chainid, amount, Recipient, ShowAlert) {
 			value: ethers.utils.parseEther(amount),
 			gasPrice: 6_000_000_000
 		};
-		const reciept =await (await signer.sendTransaction(tx)).wait();
+		const reciept = await (await signer.sendTransaction(tx)).wait();
 		return {
 			transaction: `https://moonbase.moonscan.io/tx/${reciept.transactionHash}`
 		};
@@ -28,7 +28,7 @@ export async function sendTransfer(chainid, amount, Recipient, ShowAlert) {
 	let targetProvider = new ethers.providers.JsonRpcProvider(targetNetwork.rpc);
 	const targetTokenBridgeWithoutSigner = new ethers.Contract(targetNetwork.tokenBridgeAddress, TokenBridgeApi.abi, targetProvider);
 
-	const bridgeAmt =ethers.utils.parseUnits(amount, 'gwei');
+	const bridgeAmt = `${Number(amount) * 1e18}`;
 	const targetRecepient = Buffer.from(tryNativeToHexString(Recipient, "ethereum"), "hex");
 
 	let wrappedTokenAddress = await targetTokenBridgeWithoutSigner.wrappedAsset(FromNetwork.wormholeChainId, Buffer.from(tryNativeToHexString(FromNetwork.testToken, "ethereum"), "hex"));
@@ -65,7 +65,7 @@ export async function sendTransfer(chainid, amount, Recipient, ShowAlert) {
 
 		await window.ethereum.request({
 			method: "wallet_switchEthereumChain",
-			params: [{chainId: "0x507"}] //1287
+			params: [{ chainId: "0x507" }] //1287
 		});
 
 		targetSigner = new ethers.providers.Web3Provider(window.ethereum).getSigner();
@@ -87,7 +87,7 @@ export async function sendTransfer(chainid, amount, Recipient, ShowAlert) {
 
 	await window.ethereum.request({
 		method: "wallet_switchEthereumChain",
-		params: [{chainId: FromNetwork.hex.toString()}] //From Chain
+		params: [{ chainId: FromNetwork.hex.toString() }] //From Chain
 	});
 	ShowAlert("pending", `Wrapping and Sending amount to Moonbase Token Bridge...`);
 	const tx = await (
@@ -99,14 +99,21 @@ export async function sendTransfer(chainid, amount, Recipient, ShowAlert) {
 	const emitterAddr = getEmitterAddressEth(FromNetwork.tokenBridgeAddress);
 	const seq = parseSequenceFromLogEth(tx, FromNetwork.bridgeAddress); //Core Bridge
 	const vaaURL = `${config.wormhole.restAddress}/v1/signed_vaa/${FromNetwork.wormholeChainId}/${emitterAddr}/${seq}`;
-	let vaaBytes = await (await fetch(vaaURL)).json();
-
-	while (!vaaBytes.vaaBytes) {
-		console.log("VAA not found, retrying in 5s!");
-		await new Promise((r) => setTimeout(r, 5000)); //Timeout to let Guardiand pick up log and have VAA ready
+	let vaaBytes = {}
+	try {
 		vaaBytes = await (await fetch(vaaURL)).json();
+
+	} catch (e) { }
+	while (!vaaBytes.vaaBytes) {
+		try {
+			console.log("VAA not found, retrying in 5s!");
+			await new Promise((r) => setTimeout(r, 5000)); //Timeout to let Guardiand pick up log and have VAA ready
+			vaaBytes = await (await fetch(vaaURL)).json();
+		} catch (e) { }
+
 	}
 	ShowAlert("success", `Wrapped and Sent to Moonbase Token Bridge!`);
+
 	targetSigner = new ethers.Wallet(targetNetwork.privateKey).connect(new ethers.providers.JsonRpcProvider(targetNetwork.rpc));
 	targetTokenBridge = new ethers.Contract(targetNetwork.tokenBridgeAddress, TokenBridgeApi.abi, targetSigner);
 

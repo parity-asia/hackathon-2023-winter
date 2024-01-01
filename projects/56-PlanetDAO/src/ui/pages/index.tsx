@@ -1,6 +1,6 @@
 import { Button } from '@heathmont/moon-core-tw';
 import Head from 'next/head';
-import Image from 'next/image';
+import Image from 'next/legacy/image';
 import styles from './Home.module.scss';
 import { useState } from 'react';
 import CreateDaoModal from '../features/CreateDaoModal';
@@ -45,7 +45,7 @@ export default function Welcome() {
             />
           </div>
           <h1 className="text-moon-32 font-bold pt-2">Empower Your Community with Trust</h1>
-        
+
           <p> Create your fair, transparent, and collaborative community by using PlanetDAO, a decentralized autonomous organization (DAO) as a service.</p>
           <p>PlanetDAO enables communities to govern themselves, make decisions collectively, have a transparency payments process and build trust-based ecosystems. Everything in just a couple clicks.</p>
           <p>Start your DAO today and give everyone in your community a voice!</p>
@@ -58,7 +58,8 @@ export default function Welcome() {
           <Image
             src={'/home/section-1-img.jpg'}
             alt=""
-            fill
+            layout="fill"
+            objectFit="cover"
             sizes="100vw"
             style={{
               objectFit: 'cover'
@@ -87,7 +88,8 @@ export default function Welcome() {
           <Image
             src={'/home/section-2-img.jpg'}
             alt=""
-            fill
+            layout="fill"
+            objectFit="cover"
             sizes="100vw"
             style={{
               objectFit: 'cover'
@@ -108,7 +110,7 @@ export default function Welcome() {
             />
           </div>
           <h1 className="text-moon-32 font-bold pt-2">Empower Your Community with Trust</h1>
-         
+
           <p> Create your fair, transparent, and collaborative community by using PlanetDAO, a decentralized autonomous organization (DAO) as a service.</p>
           <p>PlanetDAO enables communities to govern themselves, make decisions collectively, have a transparency payments process and build trust-based ecosystems. Everything in just a couple clicks.</p>
           <p>Start your DAO today and give everyone in your community a voice!</p>

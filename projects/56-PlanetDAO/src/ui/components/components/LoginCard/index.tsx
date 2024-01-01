@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from "next/legacy/image";
 import Card from '../Card';
 import { Button } from '@heathmont/moon-core-tw';
 import { SoftwareLogin } from '@heathmont/moon-icons-tw';
@@ -7,12 +7,8 @@ import UseFormInput from '../UseFormInput';
 import { usePolkadotContext } from '../../../contexts/PolkadotContext';
 import { toast } from 'react-toastify';
 
-
-const LoginCard = ({ step, onConnectMetamask, onConnectPolkadot, setStep }: { step: number; onConnect: MouseEventHandler<HTMLButtonElement>; onConnectMetamask: MouseEventHandler<HTMLButtonElement>; onConnectPolkadot: MouseEventHandler<HTMLButtonElement>; setStep:Dispatch<SetStateAction<number>> }) => {
-
-
-  const { api, deriveAcc, showToast } = usePolkadotContext();
-
+const LoginCard = ({ step, onConnectMetamask, onConnectPolkadot, setStep }: { step: number; onConnect: MouseEventHandler<HTMLButtonElement>; onConnectMetamask: MouseEventHandler<HTMLButtonElement>; onConnectPolkadot: MouseEventHandler<HTMLButtonElement>; setStep: Dispatch<SetStateAction<number>> }) => {
+  const { api, deriveAcc, showToast, EasyToast } = usePolkadotContext();
 
   const [Email, EmailInput] = UseFormInput({
     defaultValue: '',
@@ -29,58 +25,64 @@ const LoginCard = ({ step, onConnectMetamask, onConnectPolkadot, setStep }: { st
   });
 
   async function OnClickLoginStep1Extrinsics() {
-    const id = toast.loading("Logging in  ...")
+    const id = toast.loading('Logging in  ...');
 
     const doAfter = (events) => {
       let user_data = [];
       events.forEach(({ event: { data, method, section }, phase }) => {
-        if (method == "LoggedIn") {
-          user_data = JSON.parse(data.toString())
+        if (method == 'LoggedIn') {
+          user_data = JSON.parse(data.toString());
         }
       });
-      if (user_data.length > 0){
-        localStorage.setItem("user_id", (user_data[0]).toString());
+      if (user_data.length > 0) {
+        localStorage.setItem('user_id', user_data[0].toString());
         if (user_data[1] == true) {
-          toast.update(id, { 
-            render: "Logged in Successfully!", type: "success", isLoading: false ,  
-           autoClose: 1000,
-          closeButton: true,
-          closeOnClick: true,
-          draggable: true});
-          setStep(2); return;
+          toast.update(id, {
+            render: 'Logged in Successfully!',
+            type: 'success',
+            isLoading: false,
+            autoClose: 1000,
+            closeButton: true,
+            closeOnClick: true,
+            draggable: true
+          });
+          setStep(2);
+          return;
         }
-      }else{
-        toast.update(id, { render: "Incorrect email or password!", type: "error", isLoading: false });
+      } else {
+        toast.update(id, { render: 'Incorrect email or password!', type: 'error', 
+        autoClose: 1000,
+        closeButton: true,
+        closeOnClick: true,
+        draggable: true,isLoading: false });
       }
-    
-    }
-    await api._extrinsics.users.loginUser(Email, Password).signAndSend(deriveAcc, ({ status, events }) => { showToast(status, id, "Logged in Successfully!", doAfter, false, events); });
-
+    };
+    await api._extrinsics.users.loginUser(Email, Password).signAndSend(deriveAcc, ({ status, events }) => {
+      showToast(status, id, 'Logged in Successfully!', doAfter, false, events);
+    });
   }
 
   async function OnClickLoginStep1() {
-    const ToastId = toast.loading("Logging in  ...")
+    const ToastId = toast.loading('Logging in  ...');
     let totalUserCount = Number(await api._query.users.userIds());
-       
+    var found = false;
     for (let i = 0; i < totalUserCount; i++) {
       const element = await api._query.users.userById(i);
-      if (element.email.toString()==Email && element.password.toString() == Password ){
-        localStorage.setItem("user_id", (i).toString());
-        toast.update(ToastId, { 
-          render: "Logged in Successfully!", type: "success", isLoading: false ,  
-         autoClose: 1000,
-        closeButton: true,
-        closeOnClick: true,
-        draggable: true});
-        setStep(2); return;
-      }else{
-        toast.update(ToastId, { render: "Incorrect email or password!", type: "error", isLoading: false });
+      if (element.email.toString() == Email && element.password.toString() == Password) {
+        found = true;
+        localStorage.setItem('user_id', i.toString());
+        EasyToast('Logged in Successfully!', 'success', true, ToastId.toString());
+
+        setStep(2);
+        return;
+      } else {
+        found = false;
       }
     }
-
-
+    if (!found) {
+      EasyToast('Incorrect email or password!', 'error', true, ToastId.toString());
+    }
   }
-
 
   const LoginForm = () => (
     <Card className="max-w-[480px]">
@@ -141,9 +143,9 @@ const LoginCard = ({ step, onConnectMetamask, onConnectPolkadot, setStep }: { st
       {step == 1 && LoginForm()}
       {step == 2 && (
         <div className="flex flex-col gap-4 w-full items-center">
-          {ConnectMetamaskButton()}
-          <div>Or</div>
           {ConnectPolkadotButton()}
+          <div>Or</div>
+          {ConnectMetamaskButton()}
         </div>
       )}
     </>

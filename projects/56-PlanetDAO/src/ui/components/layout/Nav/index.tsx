@@ -31,13 +31,12 @@ export function Nav(): JSX.Element {
       return;
     }
     if (window.localStorage.getItem('login-type') === 'metamask') {
-      if (window?.ethereum?.selectedAddress?.toLocaleLowerCase() != null && api  && userInfo) {
+      if (window?.ethereum?.selectedAddress?.toLocaleLowerCase() != null && api && userInfo) {
         try {
           const Web3 = require('web3');
           const web3 = new Web3(window.ethereum);
           let Balance = await web3.eth.getBalance(window?.ethereum?.selectedAddress?.toLocaleLowerCase());
-        
-       
+
           let token = ' ' + getChain(Number(window.ethereum.networkVersion)).nativeCurrency.symbol;
 
           setAcc(userInfo.fullName.toString());
@@ -158,10 +157,10 @@ export function Nav(): JSX.Element {
               <div className="wallet" style={{ height: 48, display: 'flex', alignItems: 'center' }}>
                 <div className="wallet__wrapper gap-4 flex items-center">
                   <div className="wallet__info flex flex-col items-end">
-                    <a href={'/Profile/' + user_id} rel="noreferrer" className="text-primary">
-                      <div className="font-medium text-whis">{acc}</div>
+                    <a href={'/Profile/' + user_id} rel="noreferrer" className="text-primary max-w-[250px]">
+                      <div className="font-medium text-whis truncate">{acc}</div>
                     </a>
-                    <div className="text-goten font-semibold whitespace-nowrap">{Balance}</div>
+                    <div className="text-goten font-semibold truncate">{Balance}</div>
                   </div>
                   <Dropdown value={null} onChange={null}>
                     <Dropdown.Trigger>

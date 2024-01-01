@@ -3,6 +3,7 @@ import { getChain } from '../../services/useContract';
 import Alert from '@mui/material/Alert';
 import useContract from '../../services/useContract';
 import { useUtilsContext } from '../../contexts/UtilsContext';
+import { usePolkadotContext } from '../../contexts/PolkadotContext';
 import { sendTransfer } from '../../services/wormhole/useSwap';
 import { Button, IconButton, Modal } from '@heathmont/moon-core-tw';
 import { ControlsClose } from '@heathmont/moon-icons-tw';
@@ -22,6 +23,7 @@ export default function JoinCommunityModal({ SubsPrice, show, onHide, address, t
   });
 
   const { BatchJoin, getUSDPriceForChain } = useUtilsContext();
+  const { userInfo} = usePolkadotContext();
 
   function ShowAlert(type = 'default', message) {
     alertBox = document.querySelector('[name=alertbox]');
@@ -56,26 +58,27 @@ export default function JoinCommunityModal({ SubsPrice, show, onHide, address, t
     setisSent(false);
 
     setisLoading(true);
-
+      let feed = JSON.stringify({
+        name: userInfo?.fullName?.toString()
+      })
     if (Number(window.ethereum.networkVersion) === 1287) {
       //If it is sending from Moonbase so it will use batch precompiles
       ShowAlert('pending', 'Sending Batch Transaction....');
-      await BatchJoin(Amount, address, Number(dao_id));
+
+      await BatchJoin(Amount, address, Number(dao_id),feed);
 
       ShowAlert('success', 'Purchased Subscription successfully!');
-      setTimeout(() => {
-        window.location.reload();
-      }, 1000);
+      
     } else {
-      let output = await sendTransfer(Number(window.ethereum.networkVersion), Amount, address, ShowAlert);
+      let output = await sendTransfer(Number(window.ethereum.networkVersion),`${Number( Amount) }`, address, ShowAlert);
       setTransaction({
         link: output.transaction,
         token: output?.wrappedAsset
       });
       // Saving Joined Person on smart contract
-      await sendTransaction(await window.contract.populateTransaction.join_community(dao_id, Number(window.userid)));
+      await sendTransaction(await window.contract.populateTransaction.join_community(dao_id, Number(window.userid),feed));
     }
-
+    window.location.reload();
     LoadData();
     setisLoading(false);
     setisSent(true);
@@ -124,16 +127,16 @@ export default function JoinCommunityModal({ SubsPrice, show, onHide, address, t
           <div className="flex flex-col gap-8 w-full p-8">
             <div className="flex justify-between pt-8">
               <h4 className="font-semibold text-moon-18">Total</h4>
-              <h4 className="font-semibold text-moon-18">{Amount} DEV</h4>
+              <h4 className="font-semibold text-moon-18">{Amount} {Token}</h4>
             </div>
-            {Amount > Balance ? <p className="pb-8 text-right text-dodoria">Insufficient funds</p> : <p className="pb-8 text-right">Your balance is {Balance} DEV</p>}
+            {Amount > Balance ? <p className="pb-8 text-right text-dodoria">Insufficient funds</p> : <p className="pb-8 text-right">Your balance is {Balance} {Token}</p>}
           </div>
 
           <div className="flex justify-between border-t border-beerus w-full p-6">
             <Button variant="ghost" onClick={onHide}>
               Cancel
             </Button>
-            <Button id="CreateGoalBTN" type="submit" onClick={JoinSubmission} disabled={Amount > Balance || isLoading}>
+            <Button id="CreateGoalBTN" type="submit" onClick={JoinSubmission} animation={isLoading && 'progress'} disabled={Amount > Balance || isLoading}>
               Join
             </Button>
           </div>

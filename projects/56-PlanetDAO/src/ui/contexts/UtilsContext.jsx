@@ -90,7 +90,7 @@ export function UtilsProvider({ children }) {
     return smartAccount;
   }
 
-  async function BatchDonate(amount, Recipient, ideas_id, Coin) {
+  async function BatchDonate(amount, Recipient, ideas_id, Coin,feed1,feed2) {
     let parsedAmount = `${amount * 1e18}`;
 
     if (Number(window.ethereum.networkVersion) === 1287 && Coin == 'DEV') {
@@ -111,7 +111,7 @@ export function UtilsProvider({ children }) {
       let web3 = new Web3(window.ethereum);
       const PlanetDAOContract = new web3.eth.Contract(PlanetDAO.abi, PlanetDAO.address).methods;
 
-      let encodedCallData = PlanetDAOContract.add_donation(ideas_id, parsedAmount, Number(window.userid)).encodeABI();
+      let encodedCallData = PlanetDAOContract.add_donation(ideas_id, parsedAmount, Number(window.userid),feed1,feed2).encodeABI();
 
       callData.push(encodedCallData);
 
@@ -148,7 +148,7 @@ export function UtilsProvider({ children }) {
 
       let web3 = new Web3(window.ethereum);
       const PlanetDAOContract = new web3.eth.Contract(PlanetDAO.abi, PlanetDAO.address).methods;
-      let encodedCallData3 = PlanetDAOContract.add_donation(ideas_id, parsedAmount, Number(window.userid)).encodeABI();
+      let encodedCallData3 = PlanetDAOContract.add_donation(ideas_id, parsedAmount, Number(window.userid),feed1,feed2).encodeABI();
       callData.push(encodedCallData3);
 
       //Sending Batch Transaction
@@ -160,7 +160,7 @@ export function UtilsProvider({ children }) {
     }
   }
 
-  async function BatchJoin(amount, Recipient, dao_id) {
+  async function BatchJoin(amount, Recipient, dao_id,feed) {
     if (Number(window.ethereum.networkVersion) === 1287) {
       //If it is sending from Moonbase then it will not use Biconomy Batch Transactions
       let to = [];
@@ -179,7 +179,7 @@ export function UtilsProvider({ children }) {
       let web3 = new Web3(window.ethereum);
       const PlanetDAOContract = new web3.eth.Contract(PlanetDAO.abi, PlanetDAO.address).methods;
 
-      let encodedCallData = PlanetDAOContract.join_community(dao_id, Number(window.userid)).encodeABI();
+      let encodedCallData = PlanetDAOContract.join_community(dao_id, Number(window.userid),feed).encodeABI();
 
       callData.push(encodedCallData);
 

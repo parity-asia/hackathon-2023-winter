@@ -8,11 +8,17 @@ import isServer from '../../components/isServer';
 import useContract from '../../services/useContract';
 import AddImageInput from '../../components/components/AddImageInput';
 import ImageListDisplay from '../../components/components/ImageListDisplay';
+import { usePolkadotContext } from '../../contexts/PolkadotContext';
+
 import { toast } from 'react-toastify';
 
 export default function CreateIdeaModal({ show, onClose }) {
   const [IdeasImage, setIdeasImage] = useState([]);
+  const [creating, setCreating] = useState(false);
+
   const { contract, signerAddress, sendTransaction } = useContract();
+  const { userInfo } = usePolkadotContext();
+
   if (isServer()) return null;
 
   //Storage API for images and videos
@@ -68,6 +74,8 @@ export default function CreateIdeaModal({ show, onClose }) {
   //Function after clicking Create Ideas Button
   async function createIdeas() {
     const ToastId = toast.loading('Uploading IPFS ...');
+    setCreating(true);
+
     var CreateIdeasBTN = document.getElementById('CreateIdeasBTN');
     CreateIdeasBTN.disabled = true;
     let allFiles = [];
@@ -134,30 +142,45 @@ export default function CreateIdeaModal({ show, onClose }) {
       }
     };
     console.log('======================>Creating Ideas');
-    toast.update(ToastId, { render: "Creating Ideas...", isLoading: true });
+    toast.update(ToastId, { render: 'Creating Ideas...', isLoading: true });
+    const goalURIFull = await contract._goal_uris(Number(id)); //Getting total goal (Number)
+    const goalURI = JSON.parse(goalURIFull.goal_uri);
+
+    const ideasID = Number(await contract._ideas_ids());
+    let feed = JSON.stringify({
+      name: userInfo?.fullName,
+      goalTitle: goalURI.properties.Title.description,
+      ideasid: ideasID
+    });
     try {
       // Creating Ideas in Smart contract
-      await sendTransaction(await window.contract.populateTransaction.create_ideas(JSON.stringify(createdObject), Number(id), smart_contracts, Number(window.userid)));
+      await sendTransaction(await window.contract.populateTransaction.create_ideas(JSON.stringify(createdObject), Number(id), smart_contracts, Number(window.userid), feed));
       toast.update(ToastId, {
-        render: 'Created Successfully!', type: "success", isLoading: false, autoClose: 1000,
+        render: 'Created Successfully!',
+        type: 'success',
+        isLoading: false,
+        autoClose: 1000,
         closeButton: true,
         closeOnClick: true,
         draggable: true
       });
+      setCreating(false);
+      onClose({ success: true });
+
       window.location.reload();
     } catch (error) {
       console.error(error);
+      setCreating(false);
+
       return;
     }
-
-    onClose();
   }
 
   function CreateIdeasBTN() {
     return (
       <>
         <div className="flex gap-4 justify-end">
-          <Button id="CreateIdeasBTN" onClick={createIdeas}>
+          <Button id="CreateIdeasBTN" animation={creating && 'progress'} disabled={creating} onClick={createIdeas}>
             <ControlsPlus className="text-moon-24" />
             Create idea
           </Button>

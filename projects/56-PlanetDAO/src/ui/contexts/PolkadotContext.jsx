@@ -13,8 +13,9 @@ const AppContext = createContext({
   userWalletPolkadot: "",
   userSigner:null,
   PolkadotLoggedIn:false,
+  EasyToast:  (message,type,UpdateType = false,ToastId =  "")=>{},
   GetAllDaos:async ()=>{},
-  getUserInfoById: ()=>{}
+  getUserInfoById: (userid)=>{}
 });
 
 export function PolkadotProvider({ children }) {
@@ -45,6 +46,18 @@ export function PolkadotProvider({ children }) {
       return await api.query.users.userById(userid);
     }else{
       return {};
+    }
+  }
+  async function EasyToast(message,type,UpdateType = false,ToastId = ""){
+
+    if (UpdateType){
+      toast.update(ToastId, {
+        render: message, type: type, isLoading: false,
+        autoClose: 1000,
+        closeButton: true,
+        closeOnClick: true,
+        draggable: true
+      });
     }
   }
 
@@ -161,7 +174,7 @@ export function PolkadotProvider({ children }) {
      return (arr);
   }
 
-  return <AppContext.Provider value={{api:api,deriveAcc:deriveAcc,GetAllDaos:GetAllDaos,showToast:showToast,getUserInfoById:getUserInfoById,userWalletPolkadot:userWalletPolkadot,userSigner:userSigner,PolkadotLoggedIn:PolkadotLoggedIn, userInfo:userInfo}}>{children}</AppContext.Provider>;
+  return <AppContext.Provider value={{api:api,deriveAcc:deriveAcc,GetAllDaos:GetAllDaos,showToast:showToast,EasyToast:EasyToast,getUserInfoById:getUserInfoById,userWalletPolkadot:userWalletPolkadot,userSigner:userSigner,PolkadotLoggedIn:PolkadotLoggedIn, userInfo:userInfo}}>{children}</AppContext.Provider>;
 }
 
 export const usePolkadotContext = () => useContext(AppContext);

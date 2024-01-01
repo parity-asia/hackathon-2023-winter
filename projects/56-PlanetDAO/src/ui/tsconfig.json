@@ -15,6 +15,6 @@
     "jsx": "preserve",
     "incremental": true
   },
-  "include": ["pages/CreateGoal/index.jsx", "pages/donation/index.jsx", "pages/donation/auction/index.jsx", "pages/Home/index.jsx", "pages/login/index.jsx", "next-env.d.ts", "**/*.ts", "**/*.tsx", "components/components/Card/Comment.jsx", "components/components/Card/Comment.jsx", "components/components/Slideshow.jsx", "features/CreateDaoModal/index.jsx"],
+  "include": ["pages/CreateGoal/index.jsx", "pages/donation/index.jsx", "pages/donation/auction/index.jsx", "pages/Home/index.jsx", "pages/login/index.jsx", "next-env.d.ts", "**/*.ts", "**/*.tsx", "components/components/Card/Comment.jsx", "components/components/Card/Comment.jsx", "components/components/Slideshow.jsx", "features/CreateDaoModal/index.jsx", "components/components/ActivityCard/index.jsx", "features/CommunityFeed/index.jsx", "components/components/GoalCard/index.jsx", "features/TopCommunityMembers/index.jsx"],
   "exclude": ["node_modules"]
 }

@@ -60,6 +60,6 @@
     }	
 },
 "wormhole": {
-    "restAddress": "https://wormhole-v2-testnet-api.certus.one"
+    "restAddress": "https://api.testnet.wormholescan.io"
 }
 }

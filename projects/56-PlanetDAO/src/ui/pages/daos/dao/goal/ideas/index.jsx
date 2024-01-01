@@ -1,5 +1,5 @@
 import { Button } from '@heathmont/moon-core-tw';
-import { GenericEdit, GenericHeart, ShopCryptoCoin } from '@heathmont/moon-icons-tw';
+import { GenericEdit, GenericHeart, ShopWallet } from '@heathmont/moon-icons-tw';
 import Head from 'next/head';
 import { useEffect, useState } from 'react';
 import CommentBox from '../../../../../components/components/CommentBox';
@@ -8,7 +8,7 @@ import UseFormTextArea from '../../../../../components/components/UseFormTextAre
 import DonateCoinModal from '../../../../../features/DonateCoinModal';
 import VoteConviction from '../../../../../components/components/modal/VoteConviction';
 import useContract from '../../../../../services/useContract';
-import Image from 'next/image';
+import Image from 'next/legacy/image';
 import Loader from '../../../../../components/components/Loader';
 import { usePolkadotContext } from '../../../../../contexts/PolkadotContext';
 
@@ -18,11 +18,15 @@ export default function GrantIdeas() {
   const [Goal_id, setGoal_id] = useState(-1);
   const [PollIndex, setPollIndex] = useState(-1);
   const [imageList, setimageList] = useState([]);
+  const [isJoined, setIsJoined] = useState(false);
+
   const [IdeasURI, setIdeasURI] = useState({ ideasId: '', Title: '', Description: '', Referenda: 0, wallet: '', logo: '', End_Date: '', voted: 0, delegAmount: 0, delegDated: '', isVoted: true, isOwner: true, allfiles: [] });
   const [DonatemodalShow, setDonatemodalShow] = useState(false);
   const [VotingShow, setVotingShow] = useState(false);
   const [AccountAddress, setAccountAddress] = useState('');
   const [loading, setLoading] = useState(false);
+  const [voting, setVoting] = useState(false);
+  const [commenting, setCommenting] = useState(false);
   const { contract, signerAddress, sendTransaction, saveReadMessage } = useContract();
 
   const [Comment, CommentInput, setComment] = UseFormTextArea({
@@ -72,20 +76,6 @@ export default function GrantIdeas() {
     fetchContractData();
   }, [contract, api]);
 
-  // useEffect(() => {
-  //   function SetReadSettings() {
-  //     var messages = document.querySelectorAll('.read-message');
-  //     for (let i = 0; i < messages.length; i++) {
-  //       const element = messages[i];
-  //       observerMessage.observe(element);
-  //     }
-  //     var replys = document.querySelectorAll('.read-reply');
-  //     for (let i = 0; i < replys.length; i++) {
-  //       const element = replys[i];
-  //       observerReply.observe(element);
-  //     }
-  //   }
-  // }, [emptydata]);
 
   useEffect(() => {
     DesignSlide();
@@ -103,16 +93,20 @@ export default function GrantIdeas() {
         const object = JSON.parse(ideaURI); //Getting ideas uri
         Goalid = await contract.get_goal_id_from_ideas_uri(ideaURI);
         setGoal_id(Goalid);
+        let isJoined = await contract.is_person_joined(Number( Goalid),Number(window.userid));
+        setIsJoined(isJoined);
+
         const goalURIFull = await contract._goal_uris(Number(Goalid)); //Getting total goal (Number)
         const goalURI = JSON.parse(goalURIFull.goal_uri);
         let allDaos = await GetAllDaos();
-        let goalDAO = allDaos.filter(e => e.daoId = goalURIFull.dao_id)[0];
+        let goalDAO = allDaos.filter((e) => (e.daoId = goalURIFull.dao_id))[0];
 
         let isvoted = false;
-        const Allvotes = await contract.get_ideas_votes_from_goal(Number(Goalid), Number(id)); //Getting all votes
+        const AllvotesWithEmpty = await contract.get_ideas_votes_from_goal(Number(Goalid), Number(id)); //Getting all votes
+        const Allvotes = AllvotesWithEmpty.filter((item, idx) => item !== '');
 
         for (let i = 0; i < Allvotes.length; i++) {
-          const element = Allvotes[i];
+          const element = Number(Allvotes[i]);
           if (element == Number(window.userid)) isvoted = true;
         }
 
@@ -150,7 +144,7 @@ export default function GrantIdeas() {
           const object = JSON.parse(commentInfo.message);
           let newComment = {
             address: object.address,
-            user_info: object?.userid != undefined ? await getUserInfoById( object?.userid) : {fullName:object.address,imgIpfs:""},
+            user_info: object?.userid != undefined ? await getUserInfoById(object?.userid) : { fullName: object.address, imgIpfs: '' },
 
             message: object.message,
             date: object.date,
@@ -166,7 +160,7 @@ export default function GrantIdeas() {
             const object = JSON.parse(replyInfo.message);
             let newReply = {
               id: object.id,
-              user_info: object?.userid != undefined ? await getUserInfoById( object?.userid) : {fullName:object.address,imgIpfs:""},
+              user_info: object?.userid != undefined ? await getUserInfoById(object?.userid) : { fullName: object.address, imgIpfs: '' },
               message: object.message,
               address: object.address,
               date: object.date
@@ -202,13 +196,36 @@ export default function GrantIdeas() {
       setVotingShow(true);
       return;
     }
+    setVoting(true);
+    const showBadgesAmount = [10, 50, 100, 150, 200, 250, 500]
+    let shouldAdd = false;
+    const ideaURI = await contract.ideas_uri(Number(id)); //Getting ideas uri
+    let Goalid = await contract.get_goal_id_from_ideas_uri(ideaURI);
+    const goalURIFull = await contract._goal_uris(Number(Goalid)); //Getting total goal (Number)
+    const goalURI = JSON.parse(goalURIFull.goal_uri);
+  
+
+    let feed = JSON.stringify({
+      votesAmount: IdeasURI.votesAmount + 1,
+      goalTitle: goalURI.properties.Title.description,
+      ideasid: Number(id)
+    })
+
+    if (showBadgesAmount.includes(IdeasURI.votesAmount + 1)) {
+      shouldAdd = true;
+    }
+
+
     try {
-      await sendTransaction(await window.contract.populateTransaction.create_goal_ideas_vote(Number(Goalid), Number(id), Number(window.userid)));
+      await sendTransaction(await window.contract.populateTransaction.create_goal_ideas_vote(Number(Goalid), Number(id), Number(window.userid), feed, shouldAdd));
+
     } catch (error) {
       console.error(error);
+      setVoting(false);
       return;
     }
     setIdeasURI({ ...IdeasURI, isVoted: !IdeasURI.isVoted });
+    setVoting(false);
   }
 
   async function onClickDonate() {
@@ -231,10 +248,10 @@ export default function GrantIdeas() {
 
   async function PostComment(e) {
     e.preventDefault();
-
+    setCommenting(true)
     let messLatestId = Number(await contract._message_ids());
     let newComment = {
-      userid:Number(window.userid),
+      userid: Number(window.userid),
       address: window?.ethereum?.selectedAddress?.toLocaleLowerCase().toString(),
       message: Comment,
       date: new Date().toISOString(),
@@ -245,6 +262,7 @@ export default function GrantIdeas() {
     newComment.user_info = userInfo;
     setCommentsList([...CommentsList, newComment]);
     setComment('');
+    setCommenting(false)
     removeElementFromArrayBYID(emptydata, 0, setemptydata);
   }
 
@@ -258,7 +276,7 @@ export default function GrantIdeas() {
     let newReply = {
       id: replyLatestId,
       message: replyText,
-      userid:Number(window.userid),
+      userid: Number(window.userid),
       address: window?.ethereum?.selectedAddress?.toLocaleLowerCase().toString(),
       date: new Date().toISOString()
     };
@@ -280,70 +298,87 @@ export default function GrantIdeas() {
         <div className={`gap-8 flex flex-col w-full bg-gohan pt-10 pb-6 border-beerus border`}>
           <div className="container flex w-full justify-between relative">
             <div className="flex flex-col gap-1">
-              <Loader loading={loading} width={300} element={<h5 className="font-semibold">{IdeasURI?.daoURI?.Title} &gt; {IdeasURI?.goalURI?.properties?.Title?.description} &gt; {IdeasURI?.Title}</h5>} />
+              <Loader
+                loading={loading}
+                width={300}
+                element={
+                  <h5 className="font-semibold">
+                    {IdeasURI?.daoURI?.Title} &gt; {IdeasURI?.goalURI?.properties?.Title?.description} &gt; {IdeasURI?.Title}
+                  </h5>
+                }
+              />
               <Loader loading={loading} width={300} element={<h1 className="text-moon-32 font-bold">{IdeasURI.Title}</h1>} />
-              <Loader loading={loading} width={770} element={<h3 className="flex gap-2 whitespace-nowrap">
-                <div>
-                  Donated <span className="text-hit font-semibold">DEV {IdeasURI.donation}</span>
-                </div>
-                <div>•</div>
-                <div>
-                  <span className="text-hit font-semibold">{IdeasURI.votesAmount}</span> votes
-                </div>
-                <div>•</div>
-                <div className="flex">
-                  Created by &nbsp;<a href={'/Profile/' + IdeasURI?.user_info?.id} className="truncate text-piccolo max-w-[120px]">@{IdeasURI?.user_info?.fullName}</a>
-                </div>
-              </h3>} />
+              <Loader
+                loading={loading}
+                width={770}
+                element={
+                  <h3 className="flex gap-2 whitespace-nowrap">
+                    <div>
+                      Donated <span className="text-hit font-semibold">DEV {IdeasURI.donation}</span>
+                    </div>
+                    <div>•</div>
+                    <div>
+                      <span className="text-hit font-semibold">{IdeasURI.votesAmount}</span> votes
+                    </div>
+                    <div>•</div>
+                    <div className="flex">
+                      Created by &nbsp;
+                      <a href={'/Profile/' + IdeasURI?.user_info?.id} className="truncate text-piccolo max-w-[120px]">
+                        @{IdeasURI?.user_info?.fullName}
+                      </a>
+                    </div>
+                  </h3>
+                }
+              />
             </div>
             <div className="flex flex-col gap-2">
-              {!IdeasURI.isOwner && (
-                <Button iconLeft={<ShopCryptoCoin />} onClick={onClickDonate}>
+              {isJoined && <Button iconLeft={<ShopWallet />} onClick={onClickDonate}>
                   Donate
                 </Button>
-              )}
-              {(!IdeasURI.isOwner) && (
-                IdeasURI.isVoted ? (
+              }
+              {!IdeasURI.isOwner && isJoined &&
+                (IdeasURI.isVoted ? (
                   <Button iconLeft={<GenericHeart fill="red" color="red" />} variant="secondary" disabled={true}>
                     Voted
                   </Button>
-                ) : (<Button iconLeft={<GenericHeart />} variant="secondary" onClick={VoteIdea}>
-                  Vote
-                </Button>)
-
-              )}
+                ) : (
+                  <Button iconLeft={<GenericHeart />} variant="secondary" animation={voting && 'progress'} disabled={voting} onClick={VoteIdea}>
+                    Vote
+                  </Button>
+                ))}
             </div>
           </div>
         </div>
 
         <div className="container flex flex-col gap-6">
           <p>{IdeasURI.Description}</p>
-          <div className='flex justify-center'><Loader
-            element={
-
-              imageList.length > 1 ? (
-                <>
-                  <SlideShow images={imageList} />
-                </>
-              ) : (
-                <>
-                   {imageList[0] && (
-                     <div className="relative w-auto max-[w-720px] h-[480px] object-contain">
-                      <Image src={imageList[0].url} fill className="object-contain" />
-                    </div>
-                  )}
-                </>
-              )
-            }
-            loading={loading}
-            width={800}
-            height={500}
-          /></div>{' '}
+          <div className="flex justify-center">
+            <Loader
+              element={
+                imageList.length > 1 ? (
+                  <>
+                    <SlideShow images={imageList} />
+                  </>
+                ) : (
+                  <>
+                    {imageList[0] && (
+                      <div className="h-[480px] max-[w-720px] object-contain overflow-hidden relative rounded-lg w-[calc(100%-32px)]">
+                        <Image src={imageList[0].url} layout="fill" objectFit="cover" className="object-contain" />
+                      </div>
+                    )}
+                  </>
+                )
+              }
+              loading={loading}
+              width={800}
+              height={500}
+            />
+          </div>{' '}
           <div className="full-w">
             <form onSubmit={PostComment} className="full-w flex flex-col gap-2">
               {CommentInput}
               <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-                <Button data-element-id="btn_donate" style={{ width: '135px' }} data-analytic-event-listener="true" type="submit">
+                <Button animation={commenting} data-element-id="btn_donate" style={{ width: '135px' }} data-analytic-event-listener="true" type="submit">
                   Post Comment
                 </Button>
               </div>

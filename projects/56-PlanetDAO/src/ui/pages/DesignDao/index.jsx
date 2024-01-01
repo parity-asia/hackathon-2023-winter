@@ -411,8 +411,8 @@ export default function DesignDao() {
     } else {
 
       // Saving HTML in Smart contract from metamask chain
-      await sendTransaction(await window.contract.populateTransaction.update_template(id, output));
-      toast.update(id, {
+      await sendTransaction(await window.contract.populateTransaction.update_template(Number(id), output));
+      toast.update(ToastId, {
         render: 'Updated Successfully!', type: "success", isLoading: false, autoClose: 1000,
         closeButton: true,
         closeOnClick: true,

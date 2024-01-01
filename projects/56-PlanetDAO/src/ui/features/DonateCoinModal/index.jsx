@@ -6,15 +6,18 @@ import Paper from '@mui/material/Paper';
 import { styled } from '@mui/material/styles';
 import { ethers } from 'ethers';
 import { useUtilsContext } from '../../contexts/UtilsContext';
+import { usePolkadotContext} from '../../contexts/PolkadotContext';
 import vTokenAbi from '../../services/json/vTokenABI.json';
 import useContract, { getChain } from '../../services/useContract';
+
 import { sendTransfer } from '../../services/wormhole/useSwap';
 import { Button, Dropdown, IconButton, Modal } from '@heathmont/moon-core-tw';
 import { ControlsClose } from '@heathmont/moon-icons-tw';
 import UseFormInput from '../../components/components/UseFormInput';
 
-export default function DonateCoin({ ideasid, show, onHide, address }) {
+export default function DonateCoin({ ideasid,show, onHide, address }) {
   const [Balance, setBalance] = useState('');
+  const {userInfo} = usePolkadotContext();
   const [CurrentChain, setCurrentChain] = useState('');
   const [CurrentChainNetwork, setCurrentChainNetwork] = useState(0);
   const [CurrentAddress, setCurrentAddress] = useState('');
@@ -69,30 +72,44 @@ export default function DonateCoin({ ideasid, show, onHide, address }) {
     setisSent(false);
     alertBox = e.target.querySelector('[name=alertbox]');
     setisLoading(true);
+    let feed1 = JSON.stringify( {
+      name: userInfo?.fullName?.toString(),
+      badge: 'First Donation'
+    })
 
+    const ideaURI = await contract.ideas_uri(Number(ideasid)); //Getting ideas uri
+    let Goalid = await contract.get_goal_id_from_ideas_uri(ideaURI);
+    const goalURIFull = await contract._goal_uris(Number(Goalid)); //Getting total goal (Number)
+    const goalURI = JSON.parse(goalURIFull.goal_uri);
+  
+
+    let feed2 = JSON.stringify( {
+      donated: Amount,
+      goalTitle: goalURI.properties.Title.description,
+      ideasid:  Number(ideasid)
+    })
     if (Number(window.ethereum.networkVersion) === 1287) {
       //If it is sending from Moonbase so it will use batch precompiles
       ShowAlert('pending', 'Sending Batch Transaction....');
-      await BatchDonate(Amount, address, Number(ideasid), Coin);
+      await BatchDonate(Amount, address, Number(ideasid), Coin,feed1,feed2);
 
       ShowAlert('success', 'Donation success!');
    
     } else {
+     
       let output = await sendTransfer(Number(window.ethereum.networkVersion), Amount, address, ShowAlert);
       setTransaction({
         link: output.transaction,
         token: output?.wrappedAsset
       });
       // Saving Donation count on smart contract
-      await sendTransaction(await window.contract.populateTransaction.add_donation(Number(ideasid), `${Amount * 1e18}`, Number(window.userid)));
+      await sendTransaction(await window.contract.populateTransaction.add_donation(Number(ideasid), `${Amount * 1e18}`, Number(window.userid),feed1,feed2));
     }
-
+    window.location.reload();
     LoadData();
     setisLoading(false);
     setisSent(true);
-    setTimeout(() => {
-      window.location.reload();
-    }, 1000);
+    
     onHide();
     
   }
@@ -169,7 +186,7 @@ export default function DonateCoin({ ideasid, show, onHide, address }) {
                 <Button variant="ghost" onClick={onHide}>
                   Cancel
                 </Button>
-                <Button type="submit" id="CreateGoalBTN">
+                <Button animation={isLoading && 'progress'} disabled={isLoading}  type="submit" id="CreateGoalBTN">
                   Donate
                 </Button>
               </div>

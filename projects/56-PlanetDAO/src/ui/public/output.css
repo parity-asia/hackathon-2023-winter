@@ -1314,8 +1314,16 @@ video {
   width: 180px;
 }
 
+.w-\[236px\]{
+  width: 236px;
+}
+
 .w-\[3\.75rem\]{
   width: 3.75rem;
+}
+
+.w-\[540px\]{
+  width: 540px;
 }
 
 .w-\[90\%\]{
@@ -1355,12 +1363,20 @@ video {
   min-width: 480px;
 }
 
+.min-w-\[540px\]{
+  min-width: 540px;
+}
+
 .min-w-\[8\.5rem\]{
   min-width: 8.5rem;
 }
 
 .max-w-\[120px\]{
   max-width: 120px;
+}
+
+.max-w-\[250px\]{
+  max-width: 250px;
 }
 
 .max-w-\[320px\]{
@@ -1907,6 +1923,10 @@ video {
   border-color: rgb(var(--gohan));
 }
 
+.border-goku{
+  border-color: rgb(var(--goku));
+}
+
 .border-goten{
   border-color: rgb(var(--goten));
 }
@@ -2169,6 +2189,10 @@ video {
 
 .pb-0{
   padding-bottom: 0px;
+}
+
+.pb-1{
+  padding-bottom: 0.25rem;
 }
 
 .pb-10{
@@ -3457,6 +3481,10 @@ input[type=file]::-webkit-file-upload-button{
 
 .last\:mb-0:last-child{
   margin-bottom: 0px;
+}
+
+.last-of-type\:border-0:last-of-type{
+  border-width: 0px;
 }
 
 .invalid\:rounded-moon-i-sm:invalid{

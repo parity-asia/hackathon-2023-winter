@@ -64,7 +64,7 @@ const mockItems = [
       }
     }
   }
-] as Activity[];
+] ;
 
 const CommunityFeed = () => {
   const [loading, setLoading] = useState(false);
@@ -106,7 +106,7 @@ const CommunityFeed = () => {
   return (
     <div className="flex flex-col gap-2 w-full items-center pb-10 w-[540px] min-w-[540px]">
       {Items.map((item, index) => (
-        <ActivityCard key={index} old_date={item.date} type={item.type} data={item.data} date={undefined}></ActivityCard>
+        <ActivityCard key={index} old_date={item.date} type={item.type} data={item.data}></ActivityCard>
       ))}
     </div>
   );

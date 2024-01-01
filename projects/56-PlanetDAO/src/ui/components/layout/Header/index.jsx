@@ -1,4 +1,4 @@
-import Image from 'next/image';
+import Image from "next/legacy/image";
 import { Nav } from '../Nav';
 import styles from './Header.module.scss';
 import Link from 'next/link';
