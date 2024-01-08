@@ -1,29 +1,38 @@
 import { Container, Row, Col } from "react-bootstrap";
 import { useEffect, useState } from "react";
-import Overview from "./overview";
+import CESS from "../lib/CESS";
+import Loading from "./loading";
 
-
-function User(props) {
-  const data=props.data;
-
-  const self={
-    click:(hash)=>{
-      console.log(`Ready to get file by hash ( ${hash} ) .`);
-    },
-  }
-
-  //let [list, setList] = useState([]);
-
+function User() {
+  const [userInfo, setUserInfo] = useState();
 
   useEffect(() => {
+    const getUser = async () => {
+      const res = await CESS.getAccountInfo();
+      setUserInfo(res);
+    }
+    getUser();
   }, []);
 
   return (
     <Container>
-      <Row>
-        <Col>Account Management</Col>
-        <Overview />
+      {/* <h1 className="text-center">Account Management</h1> */}
+      {userInfo ? <Row>
+        <Col xs={12} sm={12} md={12}>
+          Account Address: {userInfo["address"]}
+        </Col>
+        <Col xs={12} sm={12} md={12}>
+          Total Space: {userInfo["totalSpaceStr"]}
+        </Col>
+        <Col xs={12} sm={12} md={12}>
+          Used Space: {userInfo["usedSpaceStr"]}
+        </Col>
+        <Col xs={12} sm={12} md={12}>
+          Remaining Space: {userInfo["remainingSpaceStr"]}
+        </Col>
       </Row>
+        : <Loading />}
+
     </Container>
   );
 }

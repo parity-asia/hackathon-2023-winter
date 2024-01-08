@@ -1,0 +1,3 @@
+[submodule "pallets/anchor"]
+	path = pallets/anchor
+	url = https://github.com/doutv/pallet-anchor

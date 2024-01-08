@@ -1,0 +1,9 @@
+tmp/*
+*.sqlite
+*.wasm
+node_modules/
+**/compiled/*
+**/specs/*
+
+moonbeam
+polkadot

@@ -124,7 +124,7 @@ https://github.com/ff13dfly/W3OS/ Starting from the first commit
 - CESS: https://github.com/ff13dfly/cessphoto
 - Gear Foundation: https://github.com/doutv/Gear-Five-in-a-Row
 - Moonbeam: https://github.com/doutv/zk-sudoku
-- Tanssi: https://github.com/ff13dfly/Anchor
+- Tanssi: https://github.com/doutv/anchor-tanssi
 
 ## 黑客松期间所完成的事项 (2023年12月22日上午11:59初审前提交)
 
